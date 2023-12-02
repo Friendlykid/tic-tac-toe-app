@@ -118,16 +118,16 @@ button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
 
-.board-row{
+.board-row {
   display: flex;
   position: relative;
 }
 
-@media screen  and (max-width: 600px){
-  .intro{
+@media screen and (max-width: 600px) {
+  .intro {
     flex-direction: column;
   }
-  .intro-button{
+  .intro-button {
     width: 50vw;
   }
 }

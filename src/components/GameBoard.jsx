@@ -12,7 +12,7 @@ function Square({ value, onSquareClick, disabled }) {
 Square.propTypes = {
   value: PropTypes.string,
   onSquareClick: PropTypes.func,
-  disabled: PropTypes.bool
+  disabled: PropTypes.bool,
 };
 
 function checkForWinners(board) {
@@ -24,7 +24,7 @@ function checkForWinners(board) {
     [1, 4, 7],
     [2, 5, 8],
     [0, 4, 8],
-    [2, 4, 6]
+    [2, 4, 6],
   ];
   for (let i = 0; i < lines.length; i++) {
     const [a, b, c] = lines[i];
@@ -55,14 +55,18 @@ export function GameBoard({ game, setGame, userId, socket }) {
   function handleClick(i) {
     const newBoard = [...game.board];
     //Any player is not connected
-    if(!(game.X || game.O)){
-      notify("You must wait for other player!")
+    if (!(game.X || game.O)) {
+      notify("You must wait for other player!");
       return;
     }
     if (isX === (game.next === "X") && newBoard[i] === null) {
       newBoard[i] = game.next;
 
-      setGame({ ...game, board: newBoard, next: game.next === "X"?"O":"X"});
+      setGame({
+        ...game,
+        board: newBoard,
+        next: game.next === "X" ? "O" : "X",
+      });
       socket.send(
         JSON.stringify({
           action: "move",
@@ -71,7 +75,7 @@ export function GameBoard({ game, setGame, userId, socket }) {
         }),
       );
     } else {
-      notify("Wrong move!")
+      notify("Wrong move!");
     }
   }
 
@@ -93,29 +97,43 @@ export function GameBoard({ game, setGame, userId, socket }) {
       {(!game.O || !isOnMove) && (
         <div className="loading">
           <img src="/src/assets/loading.gif" alt="loading" />
-          <p>{isOnMove?"Waiting for other player": "Waiting for response"}</p>
+          <p>
+            {isOnMove ? "Waiting for other player" : "Waiting for response"}
+          </p>
         </div>
       )}
       <div className="board">
         {new Array(3).fill(0).map((_, i) => (
-            <div key={i} className="board-row">
-              {new Array(3).fill(0).map((_, j) => {
-                const index = i * 3 + j;
-                console.log('Index:', index); // Log the index
-                return (
-                    <Square
-                        key={index}
-                        value={game.board[index]}
-                        onSquareClick={() => handleClick(index)}
-                        disabled={!isOnMove}
-                    />
-                );
-              })}
-            </div>
+          <div key={i} className="board-row">
+            {new Array(3).fill(0).map((_, j) => {
+              const index = i * 3 + j;
+              console.log("Index:", index); // Log the index
+              return (
+                <Square
+                  key={index}
+                  value={game.board[index]}
+                  onSquareClick={() => handleClick(index)}
+                  disabled={!isOnMove}
+                />
+              );
+            })}
+          </div>
         ))}
       </div>
       {winner && <div className="game-id">{winner} won!</div>}
-      {winner && <button className="intro-button" onClick={() => socket.send(JSON.stringify({action: 'newBotGame', userId:userId}))}> Play again</button>}
+      {winner && (
+        <button
+          className="intro-button"
+          onClick={() =>
+            socket.send(
+              JSON.stringify({ action: "newBotGame", userId: userId }),
+            )
+          }
+        >
+          {" "}
+          Play again
+        </button>
+      )}
       <ToastContainer />
     </>
   );

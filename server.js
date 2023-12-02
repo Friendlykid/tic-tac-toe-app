@@ -37,9 +37,9 @@ wss.on("connection", function connection(ws) {
       JSON.stringify(res),
       JSON.stringify(JSON.parse(data).userId),
     );
-    if (res.type === "move" && res.game.O === "bot"){
-      setTimeout(() =>ws.send(JSON.stringify(res)), 1000 );
-    }else{
+    if (res.type === "move" && res.game.O === "bot") {
+      setTimeout(() => ws.send(JSON.stringify(res)), 1000);
+    } else {
       ws.send(JSON.stringify(res));
     }
     if (data.action === "move" && res.sendTo !== "bot") {
@@ -177,7 +177,10 @@ function processData(data) {
       result.message = "Player made a move";
       if (games.get(data.gameId).bot) {
         result.sendTo = "bot";
-        result.game = {gameId: data.gameId, ...makeBotMove(games.get(data.gameId))};
+        result.game = {
+          gameId: data.gameId,
+          ...makeBotMove(games.get(data.gameId)),
+        };
       } else if (games.get(data.gameId)[data.game?.next]) {
         result.sendTo = games.get(data.gameId)[data.game.next];
       } else {
@@ -214,7 +217,7 @@ function makeBotMove(game) {
   let openFields = game.board.map((value, i) => {
     if (value == null) return i;
   });
-  openFields = openFields.filter( a => a !== undefined);
+  openFields = openFields.filter((a) => a !== undefined);
   const newBoard = [...game.board];
   newBoard[openFields[getRandomInt(openFields.length - 1)]] = "O";
 
