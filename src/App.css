@@ -40,7 +40,7 @@
 .read-the-docs {
   color: #888;
 }
-.intro{
+.intro {
   display: flex;
   flex-direction: row;
   flex-wrap: nowrap;
@@ -48,33 +48,33 @@
   align-items: flex-start;
   align-content: normal;
 }
-.intro-button{
+.intro-button {
   width: 10vw;
   height: 10vh;
   border-radius: 10px;
   margin: 1em;
 }
 
-label{
+label {
   margin-right: 1em;
 }
-.game-id{
+.game-id {
   position: relative;
   z-index: 9999;
   padding-top: 2vh;
   padding-bottom: 2vh;
 }
-.game-id:hover{
+.game-id:hover {
   color: #646cff;
   transition: 500ms;
   cursor: pointer;
 }
 
-.faCopy{
+.faCopy {
   margin-left: 0.5em;
 }
 
-.board{
+.board {
   width: 60vw;
   height: 60vh;
   display: flex;
@@ -88,7 +88,7 @@ label{
   left: 50%;
   transform: translate(-50%, -40%);
 }
-.loading{
+.loading {
   position: absolute;
   margin-top: 5vh;
   top: 50%;
@@ -97,8 +97,8 @@ label{
   z-index: 5;
 }
 
-.loading img{
-  width:150px;
+.loading img {
+  width: 150px;
 }
 
 button {
