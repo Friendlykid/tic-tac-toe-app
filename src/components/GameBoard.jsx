@@ -38,6 +38,7 @@ function checkForWinners(board) {
 export function GameBoard({ game, setGame, userId, socket }) {
   const isX = game.X === userId;
   const isOnMove = isX === (game.next === "X");
+  const isFilled = !game.board.some( a => a === null);
   let winner = checkForWinners(game.board);
   const notify = (message) => {
     toast.info(message, {
@@ -94,7 +95,7 @@ export function GameBoard({ game, setGame, userId, socket }) {
         <FontAwesomeIcon icon={faCopy} className="faCopy" />
       </div>
 
-      {(!game.O || !isOnMove) && (
+      {!winner && (!game.O || !isOnMove) && (
         <div className="loading">
           <img src="/src/assets/loading.gif" alt="loading" />
           <p>
@@ -113,15 +114,15 @@ export function GameBoard({ game, setGame, userId, socket }) {
                   key={index}
                   value={game.board[index]}
                   onSquareClick={() => handleClick(index)}
-                  disabled={!isOnMove}
+                  disabled={!(isOnMove || winner)}
                 />
               );
             })}
           </div>
         ))}
       </div>
-      {winner && <div className="game-id">{winner} won!</div>}
-      {winner && (
+      {(winner || isFilled) && <div className="game-id">{winner?winner + " won!": "It's a draw"} </div>}
+      {(winner || isFilled) && (
         <button
           className="intro-button"
           onClick={() =>
@@ -130,7 +131,6 @@ export function GameBoard({ game, setGame, userId, socket }) {
             )
           }
         >
-          {" "}
           Play again
         </button>
       )}
