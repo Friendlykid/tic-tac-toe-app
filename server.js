@@ -37,7 +37,11 @@ wss.on("connection", function connection(ws) {
       JSON.stringify(res),
       JSON.stringify(JSON.parse(data).userId),
     );
-    ws.send(JSON.stringify(res));
+    if (res.type === "move" && res.game.O === "bot"){
+      setTimeout(() =>ws.send(JSON.stringify(res)), 1000 );
+    }else{
+      ws.send(JSON.stringify(res));
+    }
     if (data.action === "move" && res.sendTo !== "bot") {
       clients.get(res.sendTo).send(JSON.stringify(res));
     }
@@ -60,7 +64,7 @@ wss.on("connection", function connection(ws) {
     if (game && otherPlayer !== "bot") {
       clients
         .get(otherPlayer)
-        .send(JSON.stringify(processData({ action: "playerDisconnected" })));
+        ?.send(JSON.stringify(processData({ action: "playerDisconnected" })));
     }
     // Remove the client from the map
     clients.delete(userID);
@@ -173,7 +177,7 @@ function processData(data) {
       result.message = "Player made a move";
       if (games.get(data.gameId).bot) {
         result.sendTo = "bot";
-        result.game = makeBotMove(games.get(data.gameId));
+        result.game = {gameId: data.gameId, ...makeBotMove(games.get(data.gameId))};
       } else if (games.get(data.gameId)[data.game?.next]) {
         result.sendTo = games.get(data.gameId)[data.game.next];
       } else {
@@ -207,12 +211,13 @@ function findGameByPlayer(userId) {
 }
 
 function makeBotMove(game) {
-  const openFields = game.board.map((value, i) => {
-    if (value) return i;
+  let openFields = game.board.map((value, i) => {
+    if (value == null) return i;
   });
-  const newBoard = (game.board[
-    openFields[getRandomInt(openFields.length - 1)]
-  ] = "O");
+  openFields = openFields.filter( a => a !== undefined);
+  const newBoard = [...game.board];
+  newBoard[openFields[getRandomInt(openFields.length - 1)]] = "O";
+
   const newGame = { ...game, board: newBoard, next: "X" };
   games.set(game.gameId, newGame);
   return newGame;

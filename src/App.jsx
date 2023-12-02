@@ -13,7 +13,7 @@ function App() {
   const notify = (message) => {
     toast.info(message, {
       position: "bottom-right",
-      autoClose: 5000,
+      autoClose: 2000,
       hideProgressBar: false,
       closeOnClick: true,
       pauseOnHover: true,
@@ -30,7 +30,7 @@ function App() {
       hideProgressBar: false,
       closeOnClick: true,
       pauseOnHover: true,
-      draggable: true,
+      draggable: false,
       progress: undefined,
       theme: "dark",
     });
@@ -67,6 +67,7 @@ function App() {
       console.log("Disconnected from server.");
       newSocket.close();
     };
+    //empty dependency array is correct!
   }, []);
 
   return (

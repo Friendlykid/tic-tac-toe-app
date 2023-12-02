@@ -45,14 +45,17 @@
   flex-direction: row;
   flex-wrap: nowrap;
   justify-content: center;
-  align-items: flex-start;
-  align-content: normal;
+  align-items: center;
+  align-content: center;
 }
 .intro-button {
-  width: 10vw;
+  width: 20vh;
   height: 10vh;
   border-radius: 10px;
   margin: 1em;
+  overflow: clip;
+  font-size: 2vh;
+  min-width: 100px;
 }
 
 label {
@@ -75,26 +78,19 @@ label {
 }
 
 .board {
-  width: 60vw;
-  height: 60vh;
   display: flex;
-  position: absolute;
   flex-direction: column;
-  flex-wrap: wrap;
   justify-content: center;
   align-items: center;
   align-content: center;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -40%);
 }
 .loading {
   position: absolute;
-  margin-top: 5vh;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
   z-index: 5;
+  min-width: 50vw;
 }
 
 .loading img {
@@ -120,4 +116,18 @@ button:hover {
 button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
+}
+
+.board-row{
+  display: flex;
+  position: relative;
+}
+
+@media screen  and (max-width: 600px){
+  .intro{
+    flex-direction: column;
+  }
+  .intro-button{
+    width: 50vw;
+  }
 }

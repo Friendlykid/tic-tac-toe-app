@@ -19,5 +19,9 @@ export function processMessage(data, setUserId, setGame, game) {
       setUserId(data.userId);
       break;
     }
+    case "move": {
+      setGame(data.game);
+      break;
+    }
   }
 }

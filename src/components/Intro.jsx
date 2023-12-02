@@ -32,7 +32,7 @@ export function Intro({ socket, userId }) {
             setShowInput(true);
           }}
         >
-          Join Existing Game
+          Join Game
         </button>
         <button className="intro-button" onClick={handleBotGame}>
           Play against computer

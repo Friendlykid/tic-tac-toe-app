@@ -2,9 +2,9 @@ import * as PropTypes from "prop-types";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCopy } from "@fortawesome/free-solid-svg-icons";
 import { toast, ToastContainer } from "react-toastify";
-function Square({ value, onSquareClick }) {
+function Square({ value, onSquareClick, disabled }) {
   return (
-    <button className="square" onClick={onSquareClick}>
+    <button className="square" onClick={onSquareClick} disabled={disabled}>
       {value}
     </button>
   );
@@ -12,14 +12,37 @@ function Square({ value, onSquareClick }) {
 Square.propTypes = {
   value: PropTypes.string,
   onSquareClick: PropTypes.func,
+  disabled: PropTypes.bool
 };
+
+function checkForWinners(board) {
+  const lines = [
+    [0, 1, 2],
+    [3, 4, 5],
+    [6, 7, 8],
+    [0, 3, 6],
+    [1, 4, 7],
+    [2, 5, 8],
+    [0, 4, 8],
+    [2, 4, 6]
+  ];
+  for (let i = 0; i < lines.length; i++) {
+    const [a, b, c] = lines[i];
+    if (board[a] && board[a] === board[b] && board[a] === board[c]) {
+      return board[a];
+    }
+  }
+  return null;
+}
 
 export function GameBoard({ game, setGame, userId, socket }) {
   const isX = game.X === userId;
+  const isOnMove = isX === (game.next === "X");
+  let winner = checkForWinners(game.board);
   const notify = (message) => {
     toast.info(message, {
       position: "bottom-right",
-      autoClose: 5000,
+      autoClose: 2000,
       hideProgressBar: false,
       closeOnClick: true,
       pauseOnHover: true,
@@ -31,10 +54,15 @@ export function GameBoard({ game, setGame, userId, socket }) {
 
   function handleClick(i) {
     const newBoard = [...game.board];
-    if (isX === (game.next === "X")) {
+    //Any player is not connected
+    if(!(game.X || game.O)){
+      notify("You must wait for other player!")
+      return;
+    }
+    if (isX === (game.next === "X") && newBoard[i] === null) {
       newBoard[i] = game.next;
 
-      setGame({ ...game, board: newBoard });
+      setGame({ ...game, board: newBoard, next: game.next === "X"?"O":"X"});
       socket.send(
         JSON.stringify({
           action: "move",
@@ -42,6 +70,8 @@ export function GameBoard({ game, setGame, userId, socket }) {
           board: newBoard,
         }),
       );
+    } else {
+      notify("Wrong move!")
     }
   }
 
@@ -60,30 +90,32 @@ export function GameBoard({ game, setGame, userId, socket }) {
         <FontAwesomeIcon icon={faCopy} className="faCopy" />
       </div>
 
-      {!game.O && (
+      {(!game.O || !isOnMove) && (
         <div className="loading">
           <img src="/src/assets/loading.gif" alt="loading" />
-          <p>Waiting for other player</p>
+          <p>{isOnMove?"Waiting for other player": "Waiting for response"}</p>
         </div>
       )}
       <div className="board">
-        <div className="board-row">
-          <Square value={game.board[0]} onSquareClick={() => handleClick(0)} />
-          <Square value={game.board[1]} onSquareClick={() => handleClick(1)} />
-          <Square value={game.board[2]} onSquareClick={() => handleClick(2)} />
-        </div>
-        <div className="board-row">
-          <Square value={game.board[3]} onSquareClick={() => handleClick(3)} />
-          <Square value={game.board[4]} onSquareClick={() => handleClick(4)} />
-          <Square value={game.board[5]} onSquareClick={() => handleClick(5)} />
-        </div>
-        <div className="board-row">
-          <Square value={game.board[6]} onSquareClick={() => handleClick(6)} />
-          <Square value={game.board[7]} onSquareClick={() => handleClick(7)} />
-          <Square value={game.board[8]} onSquareClick={() => handleClick(8)} />
-        </div>
+        {new Array(3).fill(0).map((_, i) => (
+            <div key={i} className="board-row">
+              {new Array(3).fill(0).map((_, j) => {
+                const index = i * 3 + j;
+                console.log('Index:', index); // Log the index
+                return (
+                    <Square
+                        key={index}
+                        value={game.board[index]}
+                        onSquareClick={() => handleClick(index)}
+                        disabled={!isOnMove}
+                    />
+                );
+              })}
+            </div>
+        ))}
       </div>
-
+      {winner && <div className="game-id">{winner} won!</div>}
+      {winner && <button className="intro-button" onClick={() => socket.send(JSON.stringify({action: 'newBotGame', userId:userId}))}> Play again</button>}
       <ToastContainer />
     </>
   );
