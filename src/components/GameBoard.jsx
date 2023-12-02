@@ -15,7 +15,6 @@ Square.propTypes = {
 };
 
 export function GameBoard({game, setGame, userId, socket}){
-    const squares = game.board;
     const isX = game.X === userId;
     const notify = (message) => {
         toast.info(message, {
