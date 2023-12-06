@@ -108,7 +108,6 @@ export function GameBoard({ game, setGame, userId, socket }) {
           <div key={i} className="board-row">
             {new Array(3).fill(0).map((_, j) => {
               const index = i * 3 + j;
-              console.log("Index:", index); // Log the index
               return (
                 <Square
                   key={index}

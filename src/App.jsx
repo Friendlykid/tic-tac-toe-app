@@ -38,7 +38,7 @@ function App() {
 
   useEffect(() => {
     let check = true;
-    const newSocket = new WebSocket("ws://localhost:8080");
+    const newSocket = new WebSocket(import.meta.env.VITE_URL);
 
     // Connection opened
     newSocket.addEventListener("open", () => {
