@@ -111,11 +111,16 @@ export function GameBoard({ game, setGame, userId, socket }) {
       {(winner || isFilled) && (
         <button
           className="intro-button"
-          onClick={() =>
-            socket.send(
-              JSON.stringify({ action: "newBotGame", userId: userId }),
-            )
+          onClick={() =>{
+            if(game.bot){
+              socket.send(
+                  JSON.stringify({ action: "newBotGame", userId: userId }),
+              )
+            }else{
+             socket.send(JSON.stringify({ action: "newGameAgain", userId: userId, gameId: game.gameId }))
+            }
           }
+        }
         >
           Play again
         </button>

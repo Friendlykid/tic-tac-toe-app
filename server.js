@@ -51,7 +51,7 @@ wss.on("connection", function connection(ws) {
       );
       clients.get(res.sendTo).send(JSON.stringify(res));
     }
-    if (res.type === "joinedGame" && res.status === "success") {
+    if ((res.type === "joinedGame") && res.status === "success") {
       //send to other player
       clients.get(findGameByPlayer(userID).X).send(
         JSON.stringify({
@@ -61,6 +61,11 @@ wss.on("connection", function connection(ws) {
           game: res.game,
         }),
       );
+    }
+    if(res.type === "newGameAgain"){
+      clients.get(res.sendTo).send(
+          JSON.stringify(res)
+      )
     }
   });
   ws.on("close", () => {
@@ -199,6 +204,18 @@ function processData(data) {
     case "playerDisconnected": {
       result.type = "playerDisconnected";
       result.message = "Player disconnected!";
+      break;
+    }
+    case "newGameAgain":{
+      // user sends gameId and userId
+      result.type = "newGameAgain";
+      const game = games.get(data.gameId);
+      //const playersSymbol = game.X === data.userId ? "X": "O";
+      result.sendTo = game.X === data.userId ? game.O: game.X;
+      game.next = "X";
+      game.board = new Array(9);
+      games.set(game.gameId, game);
+      result.game = {...game, gameId:data.gameId};
       break;
     }
     default: {

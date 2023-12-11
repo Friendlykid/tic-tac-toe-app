@@ -26,6 +26,11 @@ export function processMessage(data, setUserId, setGame) {
       setGame(data.game);
       break;
     }
+
+    case "newGameAgain":{
+      setGame(data.game);
+      break;
+    }
     default:{
       break;
     }
