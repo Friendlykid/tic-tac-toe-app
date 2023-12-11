@@ -198,6 +198,7 @@ function processData(data) {
     default: {
       result.status = "error";
       result.message = "unknown error";
+      console.log(JSON.stringify(data))
       break;
     }
   }
