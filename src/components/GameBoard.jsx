@@ -2,18 +2,7 @@ import * as PropTypes from "prop-types";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCopy } from "@fortawesome/free-solid-svg-icons";
 import { toast, ToastContainer } from "react-toastify";
-function Square({ value, onSquareClick, disabled }) {
-  return (
-    <button className="square" onClick={onSquareClick} disabled={disabled}>
-      {value}
-    </button>
-  );
-}
-Square.propTypes = {
-  value: PropTypes.string,
-  onSquareClick: PropTypes.func,
-  disabled: PropTypes.bool,
-};
+import Square from "./Square.jsx";
 
 function checkForWinners(board) {
   const lines = [
@@ -40,6 +29,7 @@ export function GameBoard({ game, setGame, userId, socket }) {
   const isOnMove = isX === (game.next === "X");
   const isFilled = !game.board.some( a => a === null);
   let winner = checkForWinners(game.board);
+  console.log(game);
   const notify = (message) => {
     toast.info(message, {
       position: "bottom-right",
@@ -62,27 +52,24 @@ export function GameBoard({ game, setGame, userId, socket }) {
     }
     if (isX === (game.next === "X") && newBoard[i] === null) {
       newBoard[i] = game.next;
-
-      setGame({
-        ...game,
-        board: newBoard,
-        next: game.next === "X" ? "O" : "X",
-      });
       socket.send(
         JSON.stringify({
           action: "move",
           gameId: game.gameId,
-          board: newBoard,
+          userId: userId,
+          game: {...game, board: newBoard},
         }),
       );
+      setGame({...game, board:newBoard});
     } else {
+
       notify("Wrong move!");
     }
   }
 
   function handleCopy(e) {
     e.stopPropagation();
-    navigator.clipboard.writeText(game.gameId);
+    navigator.clipboard.writeText(game.gameId).catch(reason => console.log(reason));
     notify("Game id copied to clipboard");
   }
 

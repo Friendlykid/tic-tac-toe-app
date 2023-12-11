@@ -38,7 +38,8 @@ function App() {
 
   useEffect(() => {
     let check = true;
-    const newSocket = new WebSocket(import.meta.env.VITE_URL);
+    const newSocket = new WebSocket("ws://localhost:8080");
+    //const newSocket = new WebSocket("wss://websocket-server-3lie.onrender.com")
 
     // Connection opened
     newSocket.addEventListener("open", () => {
@@ -51,6 +52,9 @@ function App() {
       if (json.status !== "error") {
         processMessage(json, setUserId, setGame, game);
         console.log(json);
+        if(json.type === "move"){
+          notify(json);
+        }
         notify(json.message);
       } else {
         errorToast(json.message);

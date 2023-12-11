@@ -25,13 +25,14 @@ wss.on("connection", function connection(ws) {
   const userID = crypto.randomUUID();
   clients.set(userID, ws);
   console.log("connected: " + userID);
+  console.log(`${clients.size} connected.`);
   ws.isAlive = true;
   ws.on("error", console.error);
   ws.on("pong", heartbeat);
 
   ws.on("message", function message(data) {
     const res = processData(JSON.parse(data));
-    console.log("received: %s", data);
+    console.log("received: %s", JSON.parse(data));
     console.log(
       "sending %s to %s",
       JSON.stringify(res),
@@ -42,17 +43,22 @@ wss.on("connection", function connection(ws) {
     } else {
       ws.send(JSON.stringify(res));
     }
-    if (data.action === "move" && res.sendTo !== "bot") {
+    if (res.type === "move" && res.game.O !== "bot") {
+      console.log(
+          "sending %s to %s",
+          JSON.stringify(res),
+          JSON.stringify(res.sendTo),
+      );
       clients.get(res.sendTo).send(JSON.stringify(res));
     }
-    if (data.action === "joinToGame") {
+    if (res.type === "joinedGame" && res.status === "success") {
       //send to other player
-      clients.get(res.game.X).send(
+      clients.get(findGameByPlayer(userID).X).send(
         JSON.stringify({
           status: "success",
           message: "Player joined",
           type: "playerJoined",
-          O: res.game.O,
+          game: res.game,
         }),
       );
     }
@@ -151,29 +157,29 @@ function processData(data) {
     //Always is O
     case "joinToGame": {
       result.type = "joinedGame";
-      if (games.has(data.gameId)) {
+      const game = games.get(data.gameId);
+      if (game && !game.bot &&!game.O) {
         games.set(data.gameId, { ...games.get(data.gameId), O: data.userId });
         result.game = {
           gameId: data.gameId,
-          board: games.get(data.gameId),
+          ...games.get(data.gameId),
         };
         result.gameId = data.gameId;
         result.message = "Added to game";
       } else {
         result.status = "error";
-        result.message = "Game does not exist.";
+        result.message = "Game does not exist or is in play.";
+        console.log(game, data.gameId)
       }
       break;
     }
     case "move": {
       result.type = "move";
-      const oldGame = games.get(data.gameId);
-      games.set(data.gameId, {
-        ...oldGame,
-        board: data.board,
-        next: oldGame.next === "X" ? "O" : "X",
-      });
-      result.game = games.get(data.gameId);
+      const game = games.get(data.gameId);
+      game.board = data.game.board;
+      game.next = game.next === "X" ? "O" : "X";
+      games.set(data.gameId, game);
+      result.game = {...games.get(data.gameId), gameId: data.gameId};
       result.message = "Player made a move";
       if (games.get(data.gameId).bot) {
         result.sendTo = "bot";
@@ -181,8 +187,8 @@ function processData(data) {
           gameId: data.gameId,
           ...makeBotMove(games.get(data.gameId)),
         };
-      } else if (games.get(data.gameId)[data.game?.next]) {
-        result.sendTo = games.get(data.gameId)[data.game.next];
+      } else if (games.get(data.gameId)[data.game.next]) {
+        result.sendTo = game.next === "X"? game.X : game.O;
       } else {
         result.status = "error";
         result.message = "invalid move";

@@ -1,4 +1,4 @@
-export function processMessage(data, setUserId, setGame, game) {
+export function processMessage(data, setUserId, setGame) {
   switch (data.type) {
     case "newGame":
     case "newBotGame": {
@@ -9,10 +9,9 @@ export function processMessage(data, setUserId, setGame, game) {
       break;
     }
     case "joinedGame": {
-      alert(JSON.stringify(data));
-      setGame({
-        ...game,
-      });
+      setGame(
+        data.game
+      );
       break;
     }
     case "userId": {
@@ -21,6 +20,13 @@ export function processMessage(data, setUserId, setGame, game) {
     }
     case "move": {
       setGame(data.game);
+      break;
+    }
+    case "playerJoined":{
+      setGame(data.game);
+      break;
+    }
+    default:{
       break;
     }
   }

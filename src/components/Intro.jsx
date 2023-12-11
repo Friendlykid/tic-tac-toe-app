@@ -7,7 +7,8 @@ export function Intro({ socket, userId }) {
   function handleNewGame() {
     socket.send(JSON.stringify({ action: "newGame", userId: userId }));
   }
-  function handleJoinGame() {
+  function handleJoinGame(e) {
+    e.preventDefault();
     socket.send(
       JSON.stringify({
         action: "joinToGame",
