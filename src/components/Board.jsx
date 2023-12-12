@@ -28,7 +28,11 @@ export default function Board({
           game: { ...game, board: newBoard },
         }),
       );
-      setGame({ ...game, board: newBoard });
+      setGame({
+        ...game,
+        board: newBoard,
+        next: game.next === "X" ? "O" : "X",
+      });
     } else {
       notify("Wrong move!");
     }
@@ -62,6 +66,7 @@ Board.propTypes = {
   userId: PropTypes.string,
   setGame: PropTypes.func,
   isOnMove: PropTypes.bool,
+  setIsOnMove: PropTypes.func,
   winner: PropTypes.string,
   socket: PropTypes.object,
 };

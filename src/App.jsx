@@ -15,7 +15,7 @@ function App() {
   useEffect(() => {
     let check = true;
     const newSocket = new WebSocket("ws://localhost:8080");
-    //const newSocket = new WebSocket("wss://websocket-server-3lie.onrender.com")
+    //const newSocket = new WebSocket("wss://websocket-server-3lie.onrender.com");
 
     // Connection opened
     newSocket.addEventListener("open", () => {
