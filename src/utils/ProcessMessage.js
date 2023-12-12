@@ -8,30 +8,18 @@ export function processMessage(data, setUserId, setGame) {
       });
       break;
     }
-    case "joinedGame": {
-      setGame(
-        data.game
-      );
+    case "joinedGame":
+    case "move":
+    case "playerJoined":
+    case "newGameAgain": {
+      setGame(data.game);
       break;
     }
     case "userId": {
       setUserId(data.userId);
       break;
     }
-    case "move": {
-      setGame(data.game);
-      break;
-    }
-    case "playerJoined":{
-      setGame(data.game);
-      break;
-    }
-
-    case "newGameAgain":{
-      setGame(data.game);
-      break;
-    }
-    default:{
+    default: {
       break;
     }
   }

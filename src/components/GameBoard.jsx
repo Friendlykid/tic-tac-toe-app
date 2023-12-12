@@ -1,8 +1,9 @@
 import * as PropTypes from "prop-types";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCopy } from "@fortawesome/free-solid-svg-icons";
-import { toast, ToastContainer } from "react-toastify";
-import Square from "./Square.jsx";
+import { ToastContainer } from "react-toastify";
+import Board from "./Board.jsx";
+import { notify } from "../utils/Notify.js";
 
 function checkForWinners(board) {
   const lines = [
@@ -27,49 +28,14 @@ function checkForWinners(board) {
 export function GameBoard({ game, setGame, userId, socket }) {
   const isX = game.X === userId;
   const isOnMove = isX === (game.next === "X");
-  const isFilled = !game.board.some( a => a === null);
+  const isFilled = !game.board.some((a) => a === null);
   let winner = checkForWinners(game.board);
   console.log(game);
-  const notify = (message) => {
-    toast.info(message, {
-      position: "bottom-right",
-      autoClose: 2000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: false,
-      progress: undefined,
-      theme: "dark",
-    });
-  };
-
-  function handleClick(i) {
-    const newBoard = [...game.board];
-    //Any player is not connected
-    if (!(game.X || game.O)) {
-      notify("You must wait for other player!");
-      return;
-    }
-    if (isX === (game.next === "X") && newBoard[i] === null) {
-      newBoard[i] = game.next;
-      socket.send(
-        JSON.stringify({
-          action: "move",
-          gameId: game.gameId,
-          userId: userId,
-          game: {...game, board: newBoard},
-        }),
-      );
-      setGame({...game, board:newBoard});
-    } else {
-
-      notify("Wrong move!");
-    }
-  }
-
   function handleCopy(e) {
     e.stopPropagation();
-    navigator.clipboard.writeText(game.gameId).catch(reason => console.log(reason));
+    navigator.clipboard
+      .writeText(game.gameId)
+      .catch((reason) => console.log(reason));
     notify("Game id copied to clipboard");
   }
 
@@ -90,37 +56,38 @@ export function GameBoard({ game, setGame, userId, socket }) {
           </p>
         </div>
       )}
-      <div className="board">
-        {new Array(3).fill(0).map((_, i) => (
-          <div key={i} className="board-row">
-            {new Array(3).fill(0).map((_, j) => {
-              const index = i * 3 + j;
-              return (
-                <Square
-                  key={index}
-                  value={game.board[index]}
-                  onSquareClick={() => handleClick(index)}
-                  disabled={!(isOnMove || winner)}
-                />
-              );
-            })}
-          </div>
-        ))}
-      </div>
-      {(winner || isFilled) && <div className="game-id">{winner?winner + " won!": "It's a draw"} </div>}
+      <Board
+        game={game}
+        setGame={setGame}
+        isOnMove={isOnMove}
+        winner={winner}
+        userId={userId}
+        isX={isX}
+        socket={socket}
+      />
+      {(winner || isFilled) && (
+        <div className="game-id">
+          {winner ? winner + " won!" : "It's a draw"}{" "}
+        </div>
+      )}
       {(winner || isFilled) && (
         <button
           className="intro-button"
-          onClick={() =>{
-            if(game.bot){
+          onClick={() => {
+            if (game.bot) {
               socket.send(
-                  JSON.stringify({ action: "newBotGame", userId: userId }),
-              )
-            }else{
-             socket.send(JSON.stringify({ action: "newGameAgain", userId: userId, gameId: game.gameId }))
+                JSON.stringify({ action: "newBotGame", userId: userId }),
+              );
+            } else {
+              socket.send(
+                JSON.stringify({
+                  action: "newGameAgain",
+                  userId: userId,
+                  gameId: game.gameId,
+                }),
+              );
             }
-          }
-        }
+          }}
         >
           Play again
         </button>

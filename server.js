@@ -45,13 +45,13 @@ wss.on("connection", function connection(ws) {
     }
     if (res.type === "move" && res.game.O !== "bot") {
       console.log(
-          "sending %s to %s",
-          JSON.stringify(res),
-          JSON.stringify(res.sendTo),
+        "sending %s to %s",
+        JSON.stringify(res),
+        JSON.stringify(res.sendTo),
       );
       clients.get(res.sendTo).send(JSON.stringify(res));
     }
-    if ((res.type === "joinedGame") && res.status === "success") {
+    if (res.type === "joinedGame" && res.status === "success") {
       //send to other player
       clients.get(findGameByPlayer(userID).X).send(
         JSON.stringify({
@@ -62,10 +62,8 @@ wss.on("connection", function connection(ws) {
         }),
       );
     }
-    if(res.type === "newGameAgain"){
-      clients.get(res.sendTo).send(
-          JSON.stringify(res)
-      )
+    if (res.type === "newGameAgain") {
+      clients.get(res.sendTo).send(JSON.stringify(res));
     }
   });
   ws.on("close", () => {
@@ -163,7 +161,7 @@ function processData(data) {
     case "joinToGame": {
       result.type = "joinedGame";
       const game = games.get(data.gameId);
-      if (game && !game.bot &&!game.O) {
+      if (game && !game.bot && !game.O) {
         games.set(data.gameId, { ...games.get(data.gameId), O: data.userId });
         result.game = {
           gameId: data.gameId,
@@ -174,7 +172,7 @@ function processData(data) {
       } else {
         result.status = "error";
         result.message = "Game does not exist or is in play.";
-        console.log(game, data.gameId)
+        console.log(game, data.gameId);
       }
       break;
     }
@@ -184,7 +182,7 @@ function processData(data) {
       game.board = data.game.board;
       game.next = game.next === "X" ? "O" : "X";
       games.set(data.gameId, game);
-      result.game = {...games.get(data.gameId), gameId: data.gameId};
+      result.game = { ...games.get(data.gameId), gameId: data.gameId };
       result.message = "Player made a move";
       if (games.get(data.gameId).bot) {
         result.sendTo = "bot";
@@ -193,7 +191,7 @@ function processData(data) {
           ...makeBotMove(games.get(data.gameId)),
         };
       } else if (games.get(data.gameId)[data.game.next]) {
-        result.sendTo = game.next === "X"? game.X : game.O;
+        result.sendTo = game.next === "X" ? game.X : game.O;
       } else {
         result.status = "error";
         result.message = "invalid move";
@@ -206,22 +204,22 @@ function processData(data) {
       result.message = "Player disconnected!";
       break;
     }
-    case "newGameAgain":{
+    case "newGameAgain": {
       // user sends gameId and userId
       result.type = "newGameAgain";
       const game = games.get(data.gameId);
       //const playersSymbol = game.X === data.userId ? "X": "O";
-      result.sendTo = game.X === data.userId ? game.O: game.X;
+      result.sendTo = game.X === data.userId ? game.O : game.X;
       game.next = "X";
       game.board = new Array(9);
       games.set(game.gameId, game);
-      result.game = {...game, gameId:data.gameId};
+      result.game = { ...game, gameId: data.gameId };
       break;
     }
     default: {
       result.status = "error";
       result.message = "unknown error";
-      console.log(JSON.stringify(data))
+      console.log(JSON.stringify(data));
       break;
     }
   }

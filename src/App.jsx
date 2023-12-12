@@ -1,40 +1,16 @@
 import { useEffect, useState } from "react";
 import "./App.css";
-import { toast, ToastContainer } from "react-toastify";
+import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { GameBoard } from "./components/GameBoard.jsx";
 import { Intro } from "./components/Intro.jsx";
-import { processMessage } from "./utils/processMessage.js";
+import { processMessage } from "./utils/ProcessMessage.js";
+import { errorToast, notify } from "./utils/Notify.js";
 
 function App() {
   const [socket, setSocket] = useState(null);
   const [userId, setUserId] = useState(null);
   const [game, setGame] = useState(null);
-  const notify = (message) => {
-    toast.info(message, {
-      position: "bottom-right",
-      autoClose: 2000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: false,
-      progress: undefined,
-      theme: "dark",
-    });
-  };
-
-  const errorToast = (message) => {
-    toast.error(message, {
-      position: "bottom-right",
-      autoClose: 5000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: false,
-      progress: undefined,
-      theme: "dark",
-    });
-  };
 
   useEffect(() => {
     let check = true;
@@ -52,7 +28,7 @@ function App() {
       if (json.status !== "error") {
         processMessage(json, setUserId, setGame, game);
         console.log(json);
-        if(json.type === "move"){
+        if (json.type === "move") {
           notify(json);
         }
         notify(json.message);
