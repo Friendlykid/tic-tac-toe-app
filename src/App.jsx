@@ -8,10 +8,9 @@ import { processMessage } from "./utils/ProcessMessage.js";
 import { errorToast, notify } from "./utils/Notify.js";
 
 function App() {
-  const [socket, setSocket] = useState(null);
+  const [socket, setSocket] = useState(false);
   const [userId, setUserId] = useState(null);
   const [game, setGame] = useState(null);
-
   useEffect(() => {
     let check = true;
     const newSocket = new WebSocket("ws://localhost:8080");

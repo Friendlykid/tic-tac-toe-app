@@ -38,11 +38,7 @@ wss.on("connection", function connection(ws) {
       JSON.stringify(res),
       JSON.stringify(JSON.parse(data).userId),
     );
-    if (res.type === "move" && res.game.O === "bot") {
-      setTimeout(() => ws.send(JSON.stringify(res)), 1000);
-    } else {
-      ws.send(JSON.stringify(res));
-    }
+    ws.send(JSON.stringify(res));
     if (res.type === "move" && res.game.O !== "bot") {
       console.log(
         "sending %s to %s",
@@ -182,15 +178,15 @@ function processData(data) {
       game.board = data.game.board;
       game.next = game.next === "X" ? "O" : "X";
       games.set(data.gameId, game);
-      result.game = { ...games.get(data.gameId), gameId: data.gameId };
+      result.game = { ...game, gameId: data.gameId };
       result.message = "Player made a move";
       if (games.get(data.gameId).bot) {
         result.sendTo = "bot";
         result.game = {
           gameId: data.gameId,
-          ...makeBotMove(games.get(data.gameId)),
+          ...makeBotMove(game),
         };
-      } else if (games.get(data.gameId)[data.game.next]) {
+      } else if (game[data.game.next]) {
         result.sendTo = game.next === "X" ? game.X : game.O;
       } else {
         result.status = "error";
@@ -241,13 +237,36 @@ function makeBotMove(game) {
   });
   openFields = openFields.filter((a) => a !== undefined);
   const newBoard = [...game.board];
-  newBoard[openFields[getRandomInt(openFields.length - 1)]] = "O";
-
   const newGame = { ...game, board: newBoard, next: "X" };
+  if (!checkForWinners(game.board)) {
+    newBoard[openFields[getRandomInt(openFields.length - 1)]] = "O";
+  }
+  newGame.board = newBoard;
+  newGame.next = "X";
   games.set(game.gameId, newGame);
   return newGame;
 }
 
 function getRandomInt(max) {
   return Math.floor(Math.random() * (max + 1));
+}
+
+function checkForWinners(board) {
+  const lines = [
+    [0, 1, 2],
+    [3, 4, 5],
+    [6, 7, 8],
+    [0, 3, 6],
+    [1, 4, 7],
+    [2, 5, 8],
+    [0, 4, 8],
+    [2, 4, 6],
+  ];
+  for (let i = 0; i < lines.length; i++) {
+    const [a, b, c] = lines[i];
+    if (board[a] && board[a] === board[b] && board[a] === board[c]) {
+      return board[a];
+    }
+  }
+  return null;
 }
