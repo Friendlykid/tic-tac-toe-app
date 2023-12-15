@@ -50,7 +50,7 @@ export function GameBoard({ game, setGame, userId, socket }) {
 
       {!winner && (!game.O || !isOnMove) && (
         <div className="loading">
-          <img src="/src/assets/loading.gif" alt="loading" />
+          <img src="/loading.gif" alt="loading" />
           <p>
             {isOnMove ? "Waiting for other player" : "Waiting for response"}
           </p>
